@@ -4,6 +4,7 @@ data
 # files
 test.*
 .DS_store
+.python-version
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
