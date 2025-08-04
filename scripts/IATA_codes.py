@@ -9,7 +9,7 @@ import requests
 URL = "https://en.wikipedia.org/wiki/List_of_airports_by_IATA_airport_code:_"
 
 
-def get_airport_info_by_iata_code(IATA_code: str) -> dict[str, str]:
+def get_airport_info_by_iata_code(IATA_code: str) -> dict[str, str] | None:
     """
     Fetches airport information from wikipedia based on the provided IATA code.
     Makes an HTTP request to a predefined URL, parses the HTML response to find the airport
@@ -29,21 +29,21 @@ def get_airport_info_by_iata_code(IATA_code: str) -> dict[str, str]:
                 - "airport_country": The country where the airport is located (str).
         If the IATA code is not found, the function returns None.
     """
-    
+
     page = requests.get(url=f"{URL}{IATA_code[0]}")
     soup = BeautifulSoup(markup=page.text, features="html")
-    
+
     for row in soup.find_all(name="tr"):
         entry = str(row)
 
         # check if the current airport matches the IATA code
-        if re.search(pattern=f"<td>{IATA_code}<\/td>", string=entry):
+        if re.search(pattern=f"<td>{IATA_code}</td>", string=entry):
             match_soup = BeautifulSoup(markup=entry, features="html")
             values = match_soup.find_all(name="td")
-            
+
             # extract airport name and country
-            airport_name = str(values[2].text).removeprefix("<td>").removesuffix("<\/td>")
-            airport_country = str(values[3].text).removeprefix("<td>").removesuffix("<\/td>")
+            airport_name = str(values[2].text).removeprefix("<td>").removesuffix("</td>")
+            airport_country = str(values[3].text).removeprefix("<td>").removesuffix("</td>")
 
             return {
                 "IATA": IATA_code,
@@ -111,6 +111,7 @@ if __name__ == "__main__":
 
     for code in IATA_codes:
         airport_info = get_airport_info_by_iata_code(code)
-        airport_dataset.append(airport_info)
+        if airport_info:
+            airport_dataset.append(airport_info)
 
     store_airport_dataset(data=airport_dataset)
