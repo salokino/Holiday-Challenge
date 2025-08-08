@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
+from pandas.io.parsers import TextFileReader
 from utils import get_offers
 
 import pandas as pd
@@ -53,7 +54,7 @@ def get_airport_info_by_iata_code(IATA_code: str) -> dict[str, str] | None:
 
 
 
-def get_all_airports_from_offers(offers: DataFrame) -> set[str]:
+def get_all_airports_from_offers(offers: DataFrame | TextFileReader) -> set[str]:
     """
     Extracts all IATA codes from the offers dataset.
 
@@ -69,6 +70,9 @@ def get_all_airports_from_offers(offers: DataFrame) -> set[str]:
     """
 
     IATA_codes = set()
+
+    if not isinstance(offers, DataFrame):
+        return set()
 
     # get all airports
     inbound_airports_arrival = offers["inboundarrivalairport"]
@@ -105,7 +109,7 @@ def store_airport_dataset(data: list[dict[str, str]]) -> None:
 
 
 if __name__ == "__main__":
-    offers: DataFrame = get_offers()
+    offers = get_offers()
     IATA_codes = get_all_airports_from_offers(offers=offers)
     airport_dataset: list[dict[str, str]] = []
 
