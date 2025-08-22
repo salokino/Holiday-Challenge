@@ -1,15 +1,14 @@
 from models import Airport, Base, Hotel, Offer
 from dotenv import dotenv_values, load_dotenv
-from pandas import DataFrame, Series
+from pandas import DataFrame, to_datetime
 from pandas.io.parsers.readers import TextFileReader
 from utils import get_airports, get_hotels, get_offers
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 
-load_dotenv()
+load_dotenv(".env")
 config = dotenv_values(".env")
-
 
 def filter_offers_by_hotel_ids(hotel_ids: set[int], offers: DataFrame) -> DataFrame:
     return DataFrame(offers[offers["hotelid"].isin(list(hotel_ids))])
@@ -63,6 +62,7 @@ def import_offers(engine: Engine, hotel_df: DataFrame | TextFileReader, offer_df
             column_mapping = {
                 "countadults": "count_adults",
                 "countchildren": "count_children",
+                "duration": "duration",
                 "hotelid": "hotel_id",
                 "inboundarrivalairport": "inbound_arrival_airport",
                 "inboundarrivaldatetime": "inbound_arrival_datetime",
@@ -81,6 +81,12 @@ def import_offers(engine: Engine, hotel_df: DataFrame | TextFileReader, offer_df
             if hotel_ids:
                 filtered_chunk = filter_offers_by_hotel_ids(hotel_ids=hotel_ids, offers=chunk)
                 filtered_chunk = filtered_chunk.rename(columns=column_mapping)
+
+                # calculate the duration of the vacation in days
+                outbound_dates = to_datetime(filtered_chunk['outbound_departure_datetime'], utc=True, format="ISO8601", errors="coerce")
+                inbound_dates = to_datetime(filtered_chunk['inbound_departure_datetime'], utc=True, format="ISO8601", errors="coerce")
+                filtered_chunk["duration"] = (outbound_dates - inbound_dates).dt.days
+
                 filtered_chunk.to_sql(name="offers", con=engine, index=False, if_exists="append")
 
 
@@ -101,6 +107,6 @@ if __name__ == "__main__":
     hotel_df = get_hotels()
     offer_df = get_offers(chunksize=100000)
 
-    # import_airports(airport_df=airport_df, session=session)
-    # import_hotels(hotel_df=hotel_df, session=session)
-    # import_offers(engine=engine, hotel_df=hotel_df, offer_df=offer_df)
+    import_airports(airport_df=airport_df, session=session)
+    import_hotels(hotel_df=hotel_df, session=session)
+    import_offers(engine=engine, hotel_df=hotel_df, offer_df=offer_df)

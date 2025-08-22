@@ -14,7 +14,7 @@ def get_airports(chunksize: int | None = None) -> DataFrame | TextFileReader:
         A pandas DataFrame containing the airports data from the .csv file.
     """
 
-    return read_data(path="./data/airports.csv", chunksize=chunksize)
+    return read_data(path="../../data/airports.csv", chunksize=chunksize)
 
 def get_hotels(chunksize: int | None = None) -> DataFrame | TextFileReader:
     """
@@ -26,7 +26,7 @@ def get_hotels(chunksize: int | None = None) -> DataFrame | TextFileReader:
         A pandas DataFrame containing the hotels data from the .csv file.
     """
 
-    return read_data(path="./data/hotels.csv", chunksize=chunksize)
+    return read_data(path="../../data/hotels.csv", chunksize=chunksize)
 
 
 def get_offers(chunksize: int | None = None) -> DataFrame | TextFileReader:
@@ -39,7 +39,7 @@ def get_offers(chunksize: int | None = None) -> DataFrame | TextFileReader:
         A pandas DataFrame containing the offers data from the .csv file.
     """
 
-    return read_data(path="./data/offers.csv", chunksize=chunksize)
+    return read_data(path="../../data/offers.csv", chunksize=chunksize)
 
 
 def read_data(path: str, chunksize: int | None = None) -> DataFrame | TextFileReader:

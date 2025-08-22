@@ -42,6 +42,7 @@ class Offer(Base):
     offer_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     count_adults: Mapped[int] = mapped_column(SmallInteger)
     count_children: Mapped[int] = mapped_column(SmallInteger)
+    duration: Mapped[int] = mapped_column(SmallInteger)
     hotel_id: Mapped[int] = mapped_column(ForeignKey("hotels.hotel_id"))
     inbound_arrival_airport: Mapped[str] = mapped_column(CHAR(3))
     inbound_arrival_datetime: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
