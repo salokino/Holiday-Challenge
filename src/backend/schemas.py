@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Annotated
 
 
@@ -25,4 +25,18 @@ class HotelsSearchQueryAdvanced(HotelsSearchQueryBasic):
     price_max: Annotated[int | None, Field(ge=0)] = None
     price_min: Annotated[int | None, Field(ge=0)] = None
     roomtype: Annotated[str | None, Field(max_length=32)] = None
-    
+
+
+class HotelOfferResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    count_adults: int
+    count_children: int
+    count_offers: int
+    duration: int
+    hotel_name: str
+    hotel_stars: int
+    mealtype: str
+    offer_id: int
+    price: int
+    roomtype: str
