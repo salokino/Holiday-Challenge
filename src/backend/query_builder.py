@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from functools import partial
 from models import Offer, Hotel
 from schemas import HotelsSearchQueryAdvanced
@@ -14,7 +15,7 @@ class QueryBuilder:
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
             "children": Offer.count_children,
-            "duration": (Offer.inbound_departure_datetime, Offer.outbound_departure_datetime),
+            "duration": Offer.duration,
             "earliest_departure": Offer.inbound_departure_datetime,
             "inbound_arrival_time": Offer.inbound_arrival_datetime,
             "inbound_departure_airport": Offer.inbound_departure_airport,
@@ -29,11 +30,10 @@ class QueryBuilder:
             "price_min": Offer.price,
             "roomtype": Offer.roomtype
         }
-
         self._parameter_filter_mapping = {
             "adults": self._generic_equals_filter,
             "children": self._generic_equals_filter,
-            "duration": self._duration_filter,
+            "duration": self._generic_equals_filter,
             "earliest_departure": partial(self._date_comparison_filter, op=operator.ge),
             "inbound_arrival_time": self._time_filter,
             "inbound_departure_airport": self._generic_equals_filter,
@@ -50,19 +50,61 @@ class QueryBuilder:
         }
 
     def _date_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
-        return query.where(op(func.date(attribute), value))
+        """
+        Applies a date comparison filter to the given attribute. The date is converted to a datetime
+        at the start of the day for greater than or equal comparisons and at the end of the day for
+        less than or equal comparisons.
 
-    def _duration_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
-        "SELECT inbound_departure_datetime, outbound_departure_datetime, (outbound_departure_datetime::date - inbound_departure_datetime::date) as duration FROM offers LIMIT 5;"
+        Parameters
+        ----------
+        attribute : InstrumentedAttribute
+            The attribute to be filtered.
+        query : Select
+            The query to be filtered.
+        value : date
+            The date to filter by.
+        op: Operator
+            The comparison operator to use. Must be either operator.ge or operator.le.
 
-        difference_in_days = func.date(attribute[1]) - func.date(attribute[0])
-        return query.where(difference_in_days == value)
+        Returns
+        -------
+        Select
+            The filtered query.
+        """
+
+        if op == operator.ge:
+            # date at start of day in datetime format
+            datetime_value = datetime.combine(value, time.min)
+
+        # op == operator.le
+        else:
+            # date at end of day in datetime format
+            datetime_value = datetime.combine(value, time.max)
+
+        return query.where(op(attribute, datetime_value))
 
     def _extract_non_null_query_params(self) -> dict[str, str]:
+        """
+        Extracts the non-null query parameters from the query_params object.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the non-null query parameters.
+        """
+
         selected_parameters = dict(filter(lambda param: param[1] is not None, self.query_params))
         return selected_parameters
 
     def _filter_all_offers(self) -> Subquery:
+        """ Applies all filters to the Offer table based on the query parameters the user provided.
+
+        Returns
+        -------
+        Subquery
+            A subquery containing all offers that match the given query parameters.
+        """
+
         non_null_params = self._extract_non_null_query_params()
         query = select(Offer)
         for param in non_null_params:
@@ -72,12 +114,63 @@ class QueryBuilder:
         return query.subquery("filtered_offers")
 
     def _generic_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
+        """
+        Generic filter that applies a comparison filter to the given attribute.
+
+        Parameters
+        ----------
+        attribute : InstrumentedAttribute
+            The attribute to be filtered.
+        query : Select
+            The query to be filtered.
+        value : Any
+            The value to filter by.
+        op: Operator
+            The comparison operator to use.
+
+        Returns
+        -------
+        Select
+            The filtered query.
+        """
+
         return query.where(op(attribute, value))
 
     def _generic_equals_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
+        """
+        Generic filter that applies an equality filter to the given attribute.
+
+        Parameters
+        ----------
+        attribute : InstrumentedAttribute
+            The attribute to be filtered.
+        query : Select
+            The query to be filtered.
+        value : Any
+            The value to filter by.
+
+        Returns
+        -------
+        Select
+            The filtered query.
+        """
+
         return query.where(attribute == value)
 
     def _get_cheapest_offers(self, query: Subquery) -> Subquery:
+        """ Returns a subquery that contains the cheapest offer per hotel from the given query.
+
+        Parameters
+        ----------
+        query : Subquery
+            A subquery containing the offers to be filtered.
+
+        Returns
+        -------
+        Subquery
+            A subquery containing the cheapest offer per hotel.
+        """
+
         cheapest_offers_query = select(
             query.columns.hotel_id,
             func.min(query.columns.price).label("min_price"),
@@ -86,10 +179,32 @@ class QueryBuilder:
         ).group_by(
             query.columns.hotel_id
         ).subquery("cheapest_offers")
-        
+
         return cheapest_offers_query
 
+    # TODO: make this method sargable
     def _time_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
+        """ Filters the query based on the time of day. The time of day is divided into four intervals:
+        - morning: 6am - 12pm
+        - afternoon: 12pm - 6pm
+        - evening: 6pm - 10pm
+        - night: 10pm - 6am
+
+        Parameters
+        ----------
+        attribute : InstrumentedAttribute
+            The attribute to be filtered.
+        query : Select
+            The query to be filtered.
+        value : str
+            The time of day to filter by. Must be one of "morning", "afternoon", "evening", "night".
+
+        Returns
+        -------
+        Select
+            The filtered query.
+        """
+
         time_intervals = {
             "morning": (6,12),
             "afternoon": (12,18),
@@ -120,6 +235,17 @@ class QueryBuilder:
             )
 
     def build_query(self) -> Select:
+        """
+        Builds the final query based on the given query parameters, which
+        returns the cheapest offer per hotel along with the count of offers
+        per hotel and trip details.
+
+        Returns
+        -------
+        Select
+            The final query.
+        """
+
         filtered_offers_subquery = self._filter_all_offers()
         cheapest_offers_subquery = self._get_cheapest_offers(query=filtered_offers_subquery)
         final_query = select(
@@ -131,11 +257,8 @@ class QueryBuilder:
             Offer.count_adults,
             Offer.count_children,
             Offer.price,
+            Offer.duration,
             cheapest_offers_subquery.columns.count_offers,
-            (
-                func.date(Offer.outbound_departure_datetime) -
-                func.date(Offer.inbound_departure_datetime)
-            ).label("duration")
         ).join(
             target=Hotel,
             onclause=Offer.hotel_id==Hotel.hotel_id
