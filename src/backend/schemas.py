@@ -3,6 +3,28 @@ from pydantic import BaseModel, Field
 from typing import Annotated
 
 
+class AirportResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    iata_code: str
+    name: str
+
+
+class HotelOfferResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    count_adults: int
+    count_children: int
+    count_offers: int
+    duration: int
+    hotel_name: str
+    hotel_stars: int
+    mealtype: str
+    offer_id: int
+    price: int
+    roomtype: str
+
+
 class HotelsSearchQueryBasic(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -27,16 +49,5 @@ class HotelsSearchQueryAdvanced(HotelsSearchQueryBasic):
     roomtype: Annotated[str | None, Field(max_length=32)] = None
 
 
-class HotelOfferResponse(BaseModel):
-    model_config = {"from_attributes": True}
 
-    count_adults: int
-    count_children: int
-    count_offers: int
-    duration: int
-    hotel_name: str
-    hotel_stars: int
-    mealtype: str
-    offer_id: int
-    price: int
-    roomtype: str
+
