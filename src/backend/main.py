@@ -1,8 +1,8 @@
 from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI, Depends
-from query_builder import QueryBuilder
-from schemas import HotelsSearchQueryAdvanced, HotelOfferResponse
+from query_builder import AirportQueryBuilder, QueryBuilder
+from schemas import AirportResponse, HotelOfferResponse, HotelsSearchQueryAdvanced
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -14,9 +14,25 @@ app = FastAPI()
 db_client = DatabaseClient(url=f"postgresql://{config['USER']}:{config['PASSWORD']}"\
                                f"@{config['HOST']}:{config['PORT']}/{config['DB_NAME']}")
 
+airport_query_builder = AirportQueryBuilder()
+
 @app.get("/")
 def read_root():
     return {}
+
+@app.get("/airports")
+def read_airports(session: Session = Depends(db_client.get_session)):
+    query = airport_query_builder.get_airports()
+    results = session.execute(query).all()
+
+    response_objects = []
+
+    for res in results:
+        res = res._asdict()
+        response_obj = AirportResponse.model_validate(res)
+        response_objects.append(response_obj)
+
+    return response_objects
 
 @app.get("/offers/")
 def read_hotes():

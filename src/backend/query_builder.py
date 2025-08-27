@@ -1,11 +1,24 @@
 from datetime import datetime, time
 from functools import partial
-from models import Offer, Hotel
+from models import Airport, Hotel, Offer
 from schemas import HotelsSearchQueryAdvanced
 from sqlalchemy import select, Select, func, Subquery, distinct
 from sqlalchemy.orm import InstrumentedAttribute
 
 import operator
+
+
+class AirportQueryBuilder:
+    def __init__(self) -> None:
+        pass
+
+    def get_airports(self) -> Select:
+        query = select(
+            Airport.iata_code,
+            Airport.name
+        ).order_by(Airport.name)
+
+        return query
 
 
 class QueryBuilder:
