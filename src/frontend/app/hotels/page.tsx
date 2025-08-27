@@ -35,8 +35,8 @@ export default function Hotels() {
       </div>
     ) : (
       cheapestOffers.map((offer: CheapestOffer) => (
-        <div className="flex justify-center" key={offer.offer_id}>
-          <CheapestHotelOffer key={offer.offer_id} offer={offer} />
+        <div className="flex justify-center" key={offer.hotel_id}>
+          <CheapestHotelOffer key={offer.hotel_id} offer={offer} />
         </div>
       ))
     )

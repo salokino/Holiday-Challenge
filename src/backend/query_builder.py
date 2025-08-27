@@ -2,7 +2,7 @@ from datetime import datetime, time
 from functools import partial
 from models import Airport, Hotel, Offer
 from schemas import HotelsSearchQueryAdvanced
-from sqlalchemy import select, Select, func, Subquery
+from sqlalchemy import select, Select, func, Subquery, Selectable, literal_column
 from sqlalchemy.orm import InstrumentedAttribute
 
 import operator
@@ -61,9 +61,7 @@ class QueryBuilder:
         }
 
     def _airport_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
-        print(type(value))
         return query.where((attribute[0].in_(value)) & (attribute[1].in_(value)))
-
 
     def _date_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
         """
@@ -112,22 +110,22 @@ class QueryBuilder:
         selected_parameters = dict(filter(lambda param: param[1] is not None, self.query_params))
         return selected_parameters
 
-    def _filter_all_offers(self) -> Subquery:
+    def _filter_all_offers(self) -> Selectable:
         """ Applies all filters to the Offer table based on the query parameters the user provided.
 
         Returns
         -------
-        Subquery
-            A subquery containing all offers that match the given query parameters.
+        Selectable
+            A CTE containing all offers that match the given query parameters.
         """
 
         non_null_params = self._extract_non_null_query_params()
-        query = select(Offer)
+        query = select(Offer.hotel_id, Offer.offer_id, Offer.price)
         for param in non_null_params:
             attribute = self._schema_attribute_mapping[param]
             query = self._parameter_filter_mapping[param](attribute=attribute, query=query, value=non_null_params[param])
 
-        return query.subquery("filtered_offers")
+        return query.cte("filtered_offers")
 
     def _generic_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
         """
@@ -173,30 +171,61 @@ class QueryBuilder:
 
         return query.where(attribute == value)
 
-    def _get_cheapest_offers(self, query: Subquery) -> Subquery:
-        """ Returns a subquery that contains the cheapest offer per hotel from the given query.
+    def _get_cheapest_offers(self, cte: Selectable) -> Selectable:
+        """ Returns a CTE that contains the cheapest offer per hotel from the given CTE.
 
         Parameters
         ----------
-        query : Subquery
-            A subquery containing the offers to be filtered.
+        cte : Selectable
+            A CTE containing the offers to be filtered.
 
         Returns
         -------
-        Subquery
-            A subquery containing the cheapest offer per hotel.
+        Selectable
+            A CTE containing the cheapest offer per hotel.
         """
 
-        cheapest_offers_query = select(
-            query.columns.hotel_id,
-            func.min(query.columns.price).label("min_price"),
-            func.min(query.columns.offer_id).label("min_offer_id"),
-            func.count(query.columns.hotel_id).label("count_offers")
+        cheapest_offers_cte = select(
+            cte.c.hotel_id,
+            func.min(cte.c.price).label("min_price"),
+            func.min(cte.c.offer_id).label("min_offer_id"),
         ).group_by(
-            query.columns.hotel_id
-        ).subquery("cheapest_offers")
+            cte.c.hotel_id
+        ).cte("cheapest_offers")
 
-        return cheapest_offers_query
+        return cheapest_offers_cte
+
+    def _get_relevant_offer_details(self, cte: Selectable) -> Selectable:
+        """ Returns a CTE that contains the relevant details of each offer.
+
+        Returns
+        -------
+        Selectable
+            A CTE containing the relevant details of each offer.
+        """
+
+        relevant_details_cte = select(
+            cte.c.hotel_id,
+            cte.c.min_price.label("price"),
+            cte.c.min_offer_id,
+            Offer.mealtype,
+            Offer.roomtype,
+            Offer.count_adults,
+            Offer.count_children,
+            Offer.duration,
+            Hotel.hotel_name,
+            Hotel.hotel_stars
+        ).join(
+            # 1. Join: cheapest_offers_cte -> offers
+            # Nimm die min_offer_id aus der CTE und finde das passende Angebot in der offers Tabelle
+            target=cte,
+            onclause=Offer.offer_id == cte.c.min_offer_id
+        ).join(
+            target=Hotel,
+            onclause=Offer.hotel_id==Hotel.hotel_id
+        ).cte("relevant_offer_details")
+
+        return relevant_details_cte
 
     # TODO: make this method sargable
     def _time_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
@@ -262,25 +291,20 @@ class QueryBuilder:
             The final query.
         """
 
-        filtered_offers_subquery = self._filter_all_offers()
-        cheapest_offers_subquery = self._get_cheapest_offers(query=filtered_offers_subquery)
+        filtered_offers_cte = self._filter_all_offers()
+        cheapest_offers_cte = self._get_cheapest_offers(cte=filtered_offers_cte)
+        relevant_offer_details_cte = self._get_relevant_offer_details(cte=cheapest_offers_cte)
+
         final_query = select(
-            Hotel.hotel_name,
-            Hotel.hotel_stars,
-            Offer.mealtype,
-            Offer.roomtype,
-            Offer.offer_id,
-            Offer.count_adults,
-            Offer.count_children,
-            Offer.price,
-            Offer.duration,
-            cheapest_offers_subquery.columns.count_offers,
-        ).join(
-            target=Hotel,
-            onclause=Offer.hotel_id==Hotel.hotel_id
-        ).join(
-            target=cheapest_offers_subquery,
-            onclause=(Offer.offer_id == cheapest_offers_subquery.columns.min_offer_id)
+            relevant_offer_details_cte.c.hotel_id,
+            relevant_offer_details_cte.c.mealtype,
+            relevant_offer_details_cte.c.roomtype,
+            relevant_offer_details_cte.c.count_adults,
+            relevant_offer_details_cte.c.count_children,
+            relevant_offer_details_cte.c.price,
+            relevant_offer_details_cte.c.duration,
+            relevant_offer_details_cte.c.hotel_name,
+            relevant_offer_details_cte.c.hotel_stars
         )
 
         return final_query

@@ -18,12 +18,11 @@ class HotelOfferResponse(BaseModel):
 
     count_adults: int
     count_children: int
-    count_offers: int
     duration: int
+    hotel_id: int
     hotel_name: str
     hotel_stars: int
     mealtype: str
-    offer_id: int
     price: int
     roomtype: str
 
@@ -51,6 +50,9 @@ class HotelsSearchQueryAdvanced(HotelsSearchQueryBasic):
     price_min: Annotated[int | None, Field(ge=0)] = None
     roomtype: Annotated[str | None, Field(max_length=32)] = None
 
+
+class HotelOffersSearchQuery(HotelsSearchQueryAdvanced):
+    hotel_id: Annotated[str | None, Field()] = None
 
 
 

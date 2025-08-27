@@ -7,12 +7,11 @@ import { Separator } from "@/components/ui/separator"
 type CheapestOffer = {
   count_adults: number
   count_children: number
-  count_offers: number
   duration: number
+  hotel_id: number
   hotel_name: string
   hotel_stars: number
   mealtype: string
-  offer_id: number
   price: number
   roomtype: string
 }
