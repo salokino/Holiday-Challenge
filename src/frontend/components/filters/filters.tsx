@@ -11,7 +11,7 @@ import { useState } from "react";
 
 type FiltersType = {
   adults: number,
-  airports: string[],
+  airport: string[],
   children: number,
   duration: number,
   earliestDeparture: string | null,
@@ -28,7 +28,7 @@ export default function Filters(
   const router = useRouter()
   const [filters, setFilters] = useState<FiltersType>({
     adults: 2,
-    airports: [],
+    airport: [],
     children: 0,
     duration: 7,
     earliestDeparture: null,

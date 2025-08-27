@@ -11,7 +11,7 @@ export default function AirportFilter(
   }: {
     airportOptions: { iata_code: string, name: string }[],
     classname: string,
-    onChange: (filterName: "airports", value: string[]) => void
+    onChange: (filterName: "airport", value: string[]) => void
   }) {
 
   return (
@@ -22,7 +22,7 @@ export default function AirportFilter(
       <div className="p-2 max-w-sm">
         <MultiSelect
           options={airportOptions.map(airport => ({ value: airport.iata_code, label: airport.name }))}
-          onValueChange={(v) => onChange("airports", v)}
+          onValueChange={(v) => onChange("airport", v)}
           maxCount={2}
           placeholder="Select Airports"
           className="max-w-3xs"

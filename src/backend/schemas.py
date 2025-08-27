@@ -1,6 +1,9 @@
 from datetime import date
-from pydantic import BaseModel, Field
-from typing import Annotated
+from fastapi import Query
+from pydantic import BaseModel, Field, StringConstraints
+from typing import Annotated, List
+
+airport_type = Annotated[str, StringConstraints(pattern="[A-Z]{3}")]
 
 
 class AirportResponse(BaseModel):
@@ -29,10 +32,10 @@ class HotelsSearchQueryBasic(BaseModel):
     model_config = {"extra": "forbid"}
 
     adults: Annotated[int | None, Field(ge=0)] = None
+    airport: Annotated[List[airport_type] | None, Field(Query(default=None))]
     children: Annotated[int | None, Field(ge=0)] = None
     duration: Annotated[int | None, Field(ge=0)] = None
     earliest_departure: Annotated[date | None, Field()] = None
-    inbound_departure_airport: Annotated[str | None, Field(pattern="[A-Z]{3}")] = None
     latest_return: Annotated[date | None, Field()] = None
 
 

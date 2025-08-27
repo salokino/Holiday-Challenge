@@ -2,7 +2,7 @@ from datetime import datetime, time
 from functools import partial
 from models import Airport, Hotel, Offer
 from schemas import HotelsSearchQueryAdvanced
-from sqlalchemy import select, Select, func, Subquery, distinct
+from sqlalchemy import select, Select, func, Subquery
 from sqlalchemy.orm import InstrumentedAttribute
 
 import operator
@@ -27,16 +27,15 @@ class QueryBuilder:
         self.query = select(Offer)
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
+            "airport": (Offer.inbound_arrival_airport, Offer.outbound_departure_airport),
             "children": Offer.count_children,
             "duration": Offer.duration,
-            "earliest_departure": Offer.inbound_departure_datetime,
+            "earliest_departure": Offer.outbound_departure_datetime,
             "inbound_arrival_time": Offer.inbound_arrival_datetime,
-            "inbound_departure_airport": Offer.inbound_departure_airport,
             "inbound_departure_time": Offer.inbound_departure_datetime,
-            "latest_return": Offer.outbound_departure_datetime,
+            "latest_return": Offer.inbound_departure_datetime,
             "mealtype": Offer.mealtype,
             "oceanview": Offer.oceanview,
-            "outbound_arrival_airport": Offer.outbound_arrival_airport,
             "outbound_arrival_time": Offer.outbound_arrival_datetime,
             "outbound_departure_time": Offer.outbound_departure_datetime,
             "price_max": Offer.price,
@@ -45,22 +44,26 @@ class QueryBuilder:
         }
         self._parameter_filter_mapping = {
             "adults": self._generic_equals_filter,
+            "airport": self._airport_filter ,
             "children": self._generic_equals_filter,
             "duration": self._generic_equals_filter,
             "earliest_departure": partial(self._date_comparison_filter, op=operator.ge),
             "inbound_arrival_time": self._time_filter,
-            "inbound_departure_airport": self._generic_equals_filter,
             "inbound_departure_time": self._time_filter,
             "latest_return": partial(self._date_comparison_filter, op=operator.le),
             "mealtype": self._generic_equals_filter,
             "oceanview": self._generic_equals_filter,
             "outbound_arrival_time": self._time_filter,
-            "outbound_arrival_airport": self._generic_equals_filter,
             "outbound_departure_time": self._time_filter,
             "price_max": partial(self._generic_comparison_filter, op=operator.le),
             "price_min": partial(self._generic_comparison_filter, op=operator.ge),
             "roomtype": self._generic_equals_filter
         }
+
+    def _airport_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
+        print(type(value))
+        return query.where((attribute[0].in_(value)) & (attribute[1].in_(value)))
+
 
     def _date_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
         """
