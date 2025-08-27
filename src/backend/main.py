@@ -1,6 +1,7 @@
 from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from query_builder import AirportQueryBuilder, QueryBuilder
 from schemas import AirportResponse, HotelOfferResponse, HotelsSearchQueryAdvanced
 from sqlalchemy.orm import Session
@@ -11,6 +12,18 @@ load_dotenv()
 config = dotenv_values(".env")
 
 app = FastAPI()
+origins = [
+    "http://localhost:3000",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 db_client = DatabaseClient(url=f"postgresql://{config['USER']}:{config['PASSWORD']}"\
                                f"@{config['HOST']}:{config['PORT']}/{config['DB_NAME']}")
 
