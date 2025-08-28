@@ -1,3 +1,4 @@
+from pydantic import Field
 from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI, Depends, Query
@@ -49,7 +50,7 @@ def read_airports(session: Session = Depends(db_client.get_session)):
 
 @app.get("/offers/{hotel_id}")
 async def get_hotel_offers(
-    hotel_id: Annotated[int, Query(ge=1)],
+    hotel_id: Annotated[int, Field(ge=1)],
     query_params: Annotated[HotelsSearchQueryAdvanced, Depends()],
     session: Session = Depends(db_client.get_session),
     offset: Annotated[int, Query(ge=0)] = 0,
