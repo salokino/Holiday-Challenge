@@ -57,7 +57,10 @@ export default function CheapestHotelOffer(
       </div>
 
       <Link
-        href="/hotel-details"
+        href={{
+          pathname: `/offers/${offer.hotel_id}`,
+          query: Object.fromEntries(new URLSearchParams(window.location.search))
+        }}
         className="flex items-center justify-center bg-sky-800 text-white text-2xl px-6 hover:bg-sky-900 transition-colors h-full"
       >
         <Icon description="go to offers" filepath="./icons/arrow.svg" />
