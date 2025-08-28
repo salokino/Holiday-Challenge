@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
 
 import {
   NavigationMenu,
@@ -58,7 +57,7 @@ export function Navbar() {
   return (
     <div className="flex items-center gap-8 bg-sky-900 px-6 py-2">
       <Link href="/">
-        <Image alt="check24-logo" src="./logo.svg" width={100} height={50} />
+        <Image alt="check24-logo" src="/logo.svg" width={100} height={50} />
       </Link>
       <div className="flex flex-1 justify-center">
 
