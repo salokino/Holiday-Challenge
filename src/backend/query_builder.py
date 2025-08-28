@@ -191,8 +191,10 @@ class BaseQueryBuilder:
 
 
 class HotelOffersQueryBuilder(BaseQueryBuilder):
-    def __init__(self, hotel_id: str, query_params: HotelsSearchQueryAdvanced) -> None:
+    def __init__(self, hotel_id: int, limit:int, offset: int, query_params: HotelsSearchQueryAdvanced) -> None:
         self.hotel_id = hotel_id
+        self.limit = limit
+        self.offset = offset
         self.query_params = query_params
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
@@ -239,8 +241,9 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             The query to get offers for the specified hotel matching the query parameters.
         """
 
-        non_null_params = self._extract_non_null_query_params()
         query = select(
+            Hotel.hotel_name,
+            Hotel.hotel_stars,
             Offer.count_adults,
             Offer.count_children,
             Offer.duration,
@@ -249,11 +252,12 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             Offer.offer_id,
             Offer.price,
             Offer.roomtype
-        ).where(Offer.hotel_id == self.hotel_id)
-
-        for param in non_null_params:
-            attribute = self._schema_attribute_mapping[param]
-            query = self._parameter_filter_mapping[param](attribute=attribute, query=query, value=non_null_params[param])
+        ).join(
+            target=Hotel,
+            onclause=Hotel.hotel_id == self.hotel_id
+        ).where(
+            Offer.hotel_id == self.hotel_id
+        ).limit(self.limit).offset(self.offset)
 
         return query
 

@@ -26,12 +26,15 @@ class CheapestHotelOfferResponse(BaseModel):
     price: int
     roomtype: str
 
+
 class HotelOffersResponse(BaseModel):
     model_config = {"from_attributes": True}
 
     count_adults: int
     count_children: int
     duration: int
+    hotel_name: str
+    hotel_stars: int
     mealtype: str
     oceanview: bool
     offer_id: int

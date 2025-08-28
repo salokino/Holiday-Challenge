@@ -1,6 +1,6 @@
 from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from query_builder import AirportQueryBuilder, HotelOffersQueryBuilder, CheapestOffersQueryBuilder
 from schemas import AirportResponse, CheapestHotelOfferResponse, HotelOffersResponse, HotelsSearchQueryAdvanced
@@ -49,9 +49,11 @@ def read_airports(session: Session = Depends(db_client.get_session)):
 
 @app.get("/offers/{hotel_id}")
 async def get_hotel_offers(
-    hotel_id: str,
+    hotel_id: Annotated[int, Query(ge=1)],
     query_params: Annotated[HotelsSearchQueryAdvanced, Depends()],
-    session: Session = Depends(db_client.get_session)
+    session: Session = Depends(db_client.get_session),
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20
     ) -> list[HotelOffersResponse]:
         """
         Endpoint to get offers for a specific hotel based on various query parameters.
@@ -72,10 +74,9 @@ async def get_hotel_offers(
         """
 
         t1 = datetime.datetime.now()
-        query_builder = HotelOffersQueryBuilder(hotel_id=hotel_id, query_params=query_params)
+        query_builder = HotelOffersQueryBuilder(
+             hotel_id=hotel_id, limit=limit, offset=offset, query_params=query_params)
         query = query_builder.build_query()
-
-        print(query)
 
         results = session.execute(query).all()
         response_objects = []
