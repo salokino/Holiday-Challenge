@@ -2,11 +2,12 @@ from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from query_builder import AirportQueryBuilder, QueryBuilder
-from schemas import AirportResponse, HotelOfferResponse, HotelsSearchQueryAdvanced
+from query_builder import AirportQueryBuilder, HotelOffersQueryBuilder, CheapestOffersQueryBuilder
+from schemas import AirportResponse, CheapestHotelOfferResponse, HotelOffersResponse, HotelsSearchQueryAdvanced
 from sqlalchemy.orm import Session
 from typing import Annotated
 
+import datetime
 
 load_dotenv()
 config = dotenv_values(".env")
@@ -22,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 db_client = DatabaseClient(url=f"postgresql://{config['USER']}:{config['PASSWORD']}"\
                                f"@{config['HOST']}:{config['PORT']}/{config['DB_NAME']}")
@@ -47,15 +47,55 @@ def read_airports(session: Session = Depends(db_client.get_session)):
 
     return response_objects
 
-@app.get("/offers/")
-def read_hotes():
-    return {}
-
-@app.get("/hotels")
-def search_hotels(
+@app.get("/offers/{hotel_id}")
+async def get_hotel_offers(
+    hotel_id: str,
     query_params: Annotated[HotelsSearchQueryAdvanced, Depends()],
     session: Session = Depends(db_client.get_session)
-    ) -> list[HotelOfferResponse]:
+    ) -> list[HotelOffersResponse]:
+        """
+        Endpoint to get offers for a specific hotel based on various query parameters.
+
+        Parameters
+        ----------
+        hotel_id : str
+            The ID of the hotel to get offers for.
+        query_params : HotelsSearchQueryAdvanced
+            The query parameters for filtering offers.
+        session : Session
+            The SQLAlchemy session to use for the query.
+
+        Returns
+        -------
+        List[HotelOffersResponse]
+            A list of offers for the specified hotel matching the query parameters.
+        """
+
+        t1 = datetime.datetime.now()
+        query_builder = HotelOffersQueryBuilder(hotel_id=hotel_id, query_params=query_params)
+        query = query_builder.build_query()
+
+        print(query)
+
+        results = session.execute(query).all()
+        response_objects = []
+
+        # convert results to response objects
+        for res in results:
+            res = res._asdict()
+            response_obj = HotelOffersResponse.model_validate(res)
+            response_objects.append(response_obj)
+
+        t2 = datetime.datetime.now()
+        print(t2-t1)
+
+        return response_objects
+
+@app.get("/hotels")
+async def search_hotels(
+    query_params: Annotated[HotelsSearchQueryAdvanced, Depends()],
+    session: Session = Depends(db_client.get_session)
+    ) -> list[CheapestHotelOfferResponse]:
     """
     Endpoint to search for hotel offers based on various query parameters.
     The endpoint returns the cheapest offer of each hotel along with the count of offers per hotel
@@ -70,12 +110,14 @@ def search_hotels(
 
     Returns
     -------
-    List[HotelOfferResponse]
+    List[CheapestHotelOfferResponse]
         A list of hotel offers matching the query parameters.
     """
 
-    query_builder = QueryBuilder(query_params=query_params)
+    t1 = datetime.datetime.now()
+    query_builder = CheapestOffersQueryBuilder(query_params=query_params)
     query = query_builder.build_query()
+
     results = session.execute(query).all()
 
     response_objects = []
@@ -83,7 +125,10 @@ def search_hotels(
     # convert results to response objects
     for res in results:
         res = res._asdict()
-        response_obj = HotelOfferResponse.model_validate(res)
+        response_obj = CheapestHotelOfferResponse.model_validate(res)
         response_objects.append(response_obj)
+
+    t2 = datetime.datetime.now()
+    print(t2-t1)
 
     return response_objects

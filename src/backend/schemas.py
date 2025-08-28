@@ -13,7 +13,7 @@ class AirportResponse(BaseModel):
     name: str
 
 
-class HotelOfferResponse(BaseModel):
+class CheapestHotelOfferResponse(BaseModel):
     model_config = {"from_attributes": True}
 
     count_adults: int
@@ -23,6 +23,18 @@ class HotelOfferResponse(BaseModel):
     hotel_name: str
     hotel_stars: int
     mealtype: str
+    price: int
+    roomtype: str
+
+class HotelOffersResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    count_adults: int
+    count_children: int
+    duration: int
+    mealtype: str
+    oceanview: bool
+    offer_id: int
     price: int
     roomtype: str
 
@@ -49,10 +61,3 @@ class HotelsSearchQueryAdvanced(HotelsSearchQueryBasic):
     price_max: Annotated[int | None, Field(ge=0)] = None
     price_min: Annotated[int | None, Field(ge=0)] = None
     roomtype: Annotated[str | None, Field(max_length=32)] = None
-
-
-class HotelOffersSearchQuery(HotelsSearchQueryAdvanced):
-    hotel_id: Annotated[str | None, Field()] = None
-
-
-
