@@ -8,6 +8,7 @@ import HotelOffer from "@/components/Offer";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import OffsetPagination from "@/components/OffsetPagination";
+import Icon from "@/components/Icon";
 
 type Offer = {
   count_adults: number
@@ -15,9 +16,11 @@ type Offer = {
   duration: number
   hotel_name: string
   hotel_stars: number
+  inbound_departure_datetime: string
   mealtype: string
   oceanview: boolean
   offer_id: number
+  outbound_departure_datetime: string
   price: number
   roomtype: string
 }
@@ -29,7 +32,7 @@ export default function Hotels() {
   const isBrowser = () => typeof window !== 'undefined';
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [hotelOffers, setHotelOffers] = useState([]);
+  const [hotelOffers, setHotelOffers] = useState<Offer[]>([]);
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(20);
 
@@ -76,13 +79,25 @@ export default function Hotels() {
           </div>
         </div>
       ) : (
-
-        hotelOffers.map((offer: Offer) => (
-          <div className="flex justify-center" key={offer.offer_id}>
-            <HotelOffer hotel_id={hotel_id} key={offer.offer_id} offer={offer} />
+        <>
+          <div className="flex justify-center pb-8">
+            <div className="flex w-3xl m-1 rounded-xl">
+              <div className="hotel-name font-medium text-5xl [font-variant:small-caps]">
+                {hotelOffers[0]?.hotel_name}
+              </div>
+              <div className="hotel-stars flex text-2xl px-4 content-center">
+                {
+                  [...Array(hotelOffers[0]?.hotel_stars)].map((e, i) => <Icon key={i} description={`${hotelOffers[0]?.hotel_stars} stars`} filepath={"/icons/star.svg"} />)
+                }
+              </div>
+            </div>
           </div>
-        ))
-
+          {hotelOffers.map((offer: Offer) => (
+            <div className="flex justify-center" key={offer.offer_id}>
+              <HotelOffer hotel_id={hotel_id} key={offer.offer_id} offer={offer} />
+            </div>
+          ))}
+        </>
       )}
       <OffsetPagination onChange={handleChange} />
     </div>
