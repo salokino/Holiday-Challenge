@@ -1,3 +1,24 @@
+const getFormattedDate = (date: string) => {
+  const dateAsDate = new Date(date);
+  const day = dateAsDate.getDate();
+  const month = dateAsDate.toLocaleString('default', { month: 'short' });
+  const year = dateAsDate.getFullYear();
+
+  return `${day} ${month} ${year}`;
+};
+
+const getFormattedTime = (date: string) => {
+  const dateAsDate = new Date(date);
+  const hours = dateAsDate.getHours();
+  const minutes = dateAsDate.getMinutes();
+
+  // Add leading zeros
+  const hoursAsString = hours < 10 ? `0${hours}` : hours;
+  const minutesAsString = minutes < 10 ? `0${minutes}` : minutes;
+
+  return `${hoursAsString}:${minutesAsString}`;
+};
+
 const getMealtypeIconFilename = (mealtype: string) => {
   switch (mealtype) {
     case 'accordingdescription':
@@ -57,4 +78,26 @@ const getRoomtypeIconFilename = (roomtype: string) => {
   }
 };
 
-export { getMealtypeIconFilename, getRoomtypeIconFilename };
+const getTimeDifference = (
+  arrivalDatetime: string,
+  departureDatetime: string
+) => {
+  const arrivalDate = new Date(arrivalDatetime);
+  const departureDate = new Date(departureDatetime);
+
+  const differenceInHours =
+    Math.abs(arrivalDate.getTime() - departureDate.getTime()) / 36e5;
+  const hours = Math.floor(differenceInHours);
+  const minutes = Math.round((differenceInHours - hours) * 60);
+  return `${hours} ${hours !== 1 ? 'hours' : 'hour'} and ${minutes} ${
+    minutes !== 1 ? 'minutes' : 'minute'
+  }`;
+};
+
+export {
+  getFormattedDate,
+  getFormattedTime,
+  getMealtypeIconFilename,
+  getRoomtypeIconFilename,
+  getTimeDifference,
+};
