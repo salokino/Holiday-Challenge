@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from fastapi import Query
 from pydantic import BaseModel, Field, StringConstraints
 from typing import Annotated, List
@@ -35,11 +35,11 @@ class HotelOffersResponse(BaseModel):
     duration: int
     hotel_name: str
     hotel_stars: int
-    inbound_departure_datetime: date
+    inbound_departure_datetime: datetime
     mealtype: str
     oceanview: bool
     offer_id: int
-    outbound_departure_datetime: date
+    outbound_departure_datetime: datetime
     price: int
     roomtype: str
 
