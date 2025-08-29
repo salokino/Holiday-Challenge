@@ -12,7 +12,7 @@ export default function OffsetPagination(
 
   return (
 
-    <div className="flex m-2 justify-center">
+    <div className="flex py-8 justify-center">
       <div className="flex px-2">
         <Button className={buttonStyle} onClick={() => onChange("minus")} variant="outline">
           <Image src="/icons/undo.svg" alt="icon" width={24} height={24} /> Previous

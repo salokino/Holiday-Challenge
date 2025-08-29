@@ -130,7 +130,7 @@ export default function HotelOffer(
                           </div>
                           <div className="flex items-center gap-4 py-1 pl-3 h-12">
                             <div className="border-l-2 border-dotted border-gray-300 h-full"></div>
-                            <p className="text-xs text-gray-400">{getTimeDifference(flightDetails.outbound_arrival_datetime, flightDetails.outbound_departure_datetime)}</p>
+                            <p className="text-xs text-gray-400">{getTimeDifference(flightDetails.inbound_arrival_datetime, flightDetails.inbound_departure_datetime)}</p>
                           </div>
                           <div className="flex justify-between">
                             <Airport iata_code={flightDetails.inbound_arrival_airport} name={flightDetails.outbound_departure_name} />
