@@ -48,6 +48,21 @@ def read_airports(session: Session = Depends(db_client.get_session)):
 
     return response_objects
 
+
+@app.get("/flight-details/{offer_id}")
+async def get_flight_details(
+    offer_id: Annotated[int, Field(ge=1)],
+    session: Session = Depends(db_client.get_session)
+    ):
+    print("hi")
+    query = airport_query_builder.get_flight_details(offer_id=offer_id)
+    result = session.execute(query).first()
+    if result:
+        result = result._asdict()
+
+    return result
+
+
 @app.get("/offers/{hotel_id}")
 async def get_hotel_offers(
     hotel_id: Annotated[int, Field(ge=1)],

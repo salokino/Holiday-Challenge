@@ -2,8 +2,8 @@ from datetime import datetime, time
 from functools import partial
 from models import Airport, Hotel, Offer
 from schemas import HotelsSearchQueryBasic, HotelsSearchQueryAdvanced
-from sqlalchemy import select, Select, func, Subquery, Selectable, literal_column
-from sqlalchemy.orm import InstrumentedAttribute
+from sqlalchemy import select, Select, func, Selectable
+from sqlalchemy.orm import InstrumentedAttribute, aliased
 
 import operator
 
@@ -17,6 +17,33 @@ class AirportQueryBuilder:
             Airport.iata_code,
             Airport.name
         ).order_by(Airport.name)
+
+        return query
+
+    def get_flight_details(self, offer_id: int) -> Select:
+        departure_airport = aliased(Airport)
+        arrival_airport = aliased(Airport)
+
+        query = select(
+            departure_airport.name.label("outbound_departure_name"),
+            arrival_airport.name.label("outbound_arrival_name"),
+            Offer.inbound_arrival_airport,
+            Offer.inbound_arrival_datetime,
+            Offer.inbound_departure_airport,
+            Offer.inbound_departure_datetime,
+            Offer.outbound_arrival_airport,
+            Offer.outbound_arrival_datetime,
+            Offer.outbound_departure_airport,
+            Offer.outbound_departure_datetime
+        ).join(
+            departure_airport,
+            Offer.outbound_departure_airport == departure_airport.iata_code
+        ).join(
+            arrival_airport,
+            Offer.outbound_arrival_airport == arrival_airport.iata_code
+        ).where(
+            Offer.offer_id == offer_id
+        )
 
         return query
 
