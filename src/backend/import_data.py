@@ -67,13 +67,13 @@ def import_offers(engine: Engine, hotel_df: DataFrame | TextFileReader, offer_df
                 "inboundarrivalairport": "inbound_arrival_airport",
                 "inboundarrivaldatetime": "inbound_arrival_datetime",
                 "inbounddepartureairport": "inbound_departure_airport",
-                "departuredate": "inbound_departure_datetime",
+                "departuredate": "outbound_departure_datetime",
                 "mealtype": "mealtype",
                 "oceanview": "oceanview",
                 "outboundarrivalairport": "outbound_arrival_airport",
                 "outboundarrivaldatetime": "outbound_arrival_datetime",
                 "outbounddepartureairport": "outbound_departure_airport",
-                "returndate": "outbound_departure_datetime",
+                "returndate": "inbound_departure_datetime",
                 "price": "price",
                 "roomtype": "roomtype"
             }
@@ -85,7 +85,7 @@ def import_offers(engine: Engine, hotel_df: DataFrame | TextFileReader, offer_df
                 # calculate the duration of the vacation in days
                 outbound_dates = to_datetime(filtered_chunk['outbound_departure_datetime'], utc=True, format="ISO8601", errors="coerce")
                 inbound_dates = to_datetime(filtered_chunk['inbound_departure_datetime'], utc=True, format="ISO8601", errors="coerce")
-                filtered_chunk["duration"] = (outbound_dates - inbound_dates).dt.days
+                filtered_chunk["duration"] = (inbound_dates - outbound_dates).dt.days
 
                 filtered_chunk.to_sql(name="offers", con=engine, index=False, if_exists="append")
 
