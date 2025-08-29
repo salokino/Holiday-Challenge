@@ -35,9 +35,11 @@ class HotelOffersResponse(BaseModel):
     duration: int
     hotel_name: str
     hotel_stars: int
+    inbound_departure_datetime: date
     mealtype: str
     oceanview: bool
     offer_id: int
+    outbound_departure_datetime: date
     price: int
     roomtype: str
 

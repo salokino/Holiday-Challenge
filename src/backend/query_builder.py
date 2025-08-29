@@ -1,3 +1,5 @@
+# pyright: reportAttributeAccessIssue=false
+
 from datetime import datetime, time
 from functools import partial
 from models import Airport, Hotel, Offer
@@ -291,9 +293,11 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
                 Offer.count_adults,
                 Offer.count_children,
                 Offer.duration,
+                Offer.inbound_departure_datetime,
                 Offer.mealtype,
                 Offer.oceanview,
                 Offer.offer_id,
+                Offer.outbound_departure_datetime,
                 Offer.price,
                 Offer.roomtype)
         )
@@ -301,19 +305,21 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
         query = select(
             Hotel.hotel_name,
             Hotel.hotel_stars,
-            filtered_offers_cte.c.count_adults, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.count_children, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.duration, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.mealtype, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.oceanview, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.offer_id, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.price, # pyright: ignore[reportAttributeAccessIssue]
-            filtered_offers_cte.c.roomtype # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.count_adults,
+            filtered_offers_cte.c.count_children,
+            filtered_offers_cte.c.duration,
+            filtered_offers_cte.c.inbound_departure_datetime,
+            filtered_offers_cte.c.mealtype,
+            filtered_offers_cte.c.oceanview,
+            filtered_offers_cte.c.offer_id,
+            filtered_offers_cte.c.outbound_departure_datetime,
+            filtered_offers_cte.c.price,
+            filtered_offers_cte.c.roomtype
         ).join(
             target=Hotel,
             onclause=Hotel.hotel_id == self.hotel_id
         ).where(
-            Hotel.hotel_id == self.hotel_id # pyright: ignore[reportAttributeAccessIssue]
+            Hotel.hotel_id == self.hotel_id
         ).limit(self.limit).offset(self.offset)
 
         return query
@@ -402,8 +408,6 @@ class CheapestOffersQueryBuilder(BaseQueryBuilder):
             Hotel.hotel_name,
             Hotel.hotel_stars
         ).join(
-            # 1. Join: cheapest_offers_cte -> offers
-            # Nimm die min_offer_id aus der CTE und finde das passende Angebot in der offers Tabelle
             target=cte,
             onclause=Offer.offer_id == cte.c.min_offer_id
         ).join(
@@ -430,15 +434,15 @@ class CheapestOffersQueryBuilder(BaseQueryBuilder):
         relevant_offer_details_cte = self._get_relevant_offer_details(cte=cheapest_offers_cte)
 
         final_query = select(
-            relevant_offer_details_cte.c.hotel_id, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.mealtype, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.roomtype, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.count_adults, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.count_children, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.price, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.duration, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.hotel_name, # pyright: ignore[reportAttributeAccessIssue]
-            relevant_offer_details_cte.c.hotel_stars # pyright: ignore[reportAttributeAccessIssue]
+            relevant_offer_details_cte.c.hotel_id,
+            relevant_offer_details_cte.c.mealtype,
+            relevant_offer_details_cte.c.roomtype,
+            relevant_offer_details_cte.c.count_adults,
+            relevant_offer_details_cte.c.count_children,
+            relevant_offer_details_cte.c.price,
+            relevant_offer_details_cte.c.duration,
+            relevant_offer_details_cte.c.hotel_name,
+            relevant_offer_details_cte.c.hotel_stars
         )
 
         return final_query
