@@ -1,8 +1,8 @@
-from models import Airport, Base, Hotel, Offer
+from models import Airport, Base, FlightDuration, Hotel, Offer
 from dotenv import dotenv_values, load_dotenv
 from pandas import DataFrame, to_datetime
 from pandas.io.parsers.readers import TextFileReader
-from utils import get_airports, get_hotels, get_offers
+from utils import get_airports, get_flight_durations, get_hotels, get_offers
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -33,6 +33,22 @@ def import_airports(airport_df: DataFrame | TextFileReader, session: Session) ->
 
     if airports:
         session.add_all(airports)
+        session.commit()
+
+
+def import_flight_durations(flight_durations_df: DataFrame | TextFileReader, session: Session) -> None:
+    flight_durations: list[FlightDuration] = []
+
+    if isinstance(flight_durations_df, DataFrame):
+        for row in flight_durations_df.itertuples():
+            flight_duration = FlightDuration(
+                arrival_airport=row.arrival_airport, # pyright: ignore[reportAttributeAccessIssue]
+                departure_airport=row.departure_airport, # pyright: ignore[reportAttributeAccessIssue]
+                duration=row.duration_in_minutes) # pyright: ignore[reportAttributeAccessIssue]
+            flight_durations.append(flight_duration)
+
+    if flight_durations:
+        session.add_all(flight_durations)
         session.commit()
 
 
@@ -104,9 +120,11 @@ if __name__ == "__main__":
     session = sm()
 
     airport_df = get_airports()
+    flight_durations_df = get_flight_durations()
     hotel_df = get_hotels()
     offer_df = get_offers(chunksize=100000)
 
     import_airports(airport_df=airport_df, session=session)
+    import_flight_durations(flight_durations_df=flight_durations_df, session=session)
     import_hotels(hotel_df=hotel_df, session=session)
     import_offers(engine=engine, hotel_df=hotel_df, offer_df=offer_df)

@@ -26,6 +26,21 @@ class Airport(Base):
         return code
 
 
+class FlightDuration(Base):
+    __tablename__ = "flight_durations"
+
+    arrival_airport: Mapped[str] = mapped_column(CHAR(3), primary_key=True)
+    departure_airport: Mapped[str] = mapped_column(CHAR(3), primary_key=True)
+    duration: Mapped[int] = mapped_column(SmallInteger)
+
+    @validates("arrival_airport")
+    @validates("departure_airport")
+    def validate_iata_code(self, key, code):
+        if len(code) != 3:
+            raise ValueError("IATA code has to be of length 3")
+        return code
+
+
 class Hotel(Base):
     __tablename__ = "hotels"
 

@@ -286,8 +286,6 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             The query to get offers for the specified hotel matching the query parameters.
         """
 
-        print("hi", self.hotel_id)
-
         filtered_offers_cte = self._filter_all_offers(
             select(
                 Offer.count_adults,

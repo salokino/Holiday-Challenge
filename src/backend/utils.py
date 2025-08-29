@@ -16,6 +16,20 @@ def get_airports(chunksize: int | None = None) -> DataFrame | TextFileReader:
 
     return read_data(path="../../data/airports.csv", chunksize=chunksize)
 
+
+def get_flight_durations(chunksize: int | None = None) -> DataFrame | TextFileReader:
+    """
+    Wrapper function for reading flight durations data.
+
+    Returns
+    -------
+    DataFrame
+        A pandas DataFrame containing the flight durations data from the .csv file.
+    """
+
+    return read_data(path="../../data/flight_durations.csv", chunksize=chunksize)
+
+
 def get_hotels(chunksize: int | None = None) -> DataFrame | TextFileReader:
     """
     Wrapper function for reading hotels data.

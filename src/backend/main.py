@@ -54,7 +54,6 @@ async def get_flight_details(
     offer_id: Annotated[int, Field(ge=1)],
     session: Session = Depends(db_client.get_session)
     ):
-    print("hi")
     query = airport_query_builder.get_flight_details(offer_id=offer_id)
     result = session.execute(query).first()
     if result:
