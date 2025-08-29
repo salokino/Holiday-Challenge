@@ -50,7 +50,7 @@ export default function CheapestHotelOffer(
             <p className="px-4">{offer.roomtype}</p>
           </div>
           <div>
-            <div className="text-gray-600">{offer.duration} days · {offer.count_children + offer.count_adults} Pers.</div>
+            <div className="text-gray-600">{offer.duration} days · {offer.count_children + offer.count_adults} pers.</div>
           </div>
         </div>
         <div className="flex gap-6 pb-4 px-6 justify-end">

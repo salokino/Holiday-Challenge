@@ -6,9 +6,18 @@ import { Spinner } from '@/components/ui/spinner';
 import HotelOffer from "@/components/Offer";
 
 import { useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import OffsetPagination from "@/components/OffsetPagination";
 import Icon from "@/components/Icon";
+
+import { useRouter } from "next/navigation";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 type Offer = {
   count_adults: number
@@ -25,10 +34,17 @@ type Offer = {
   roomtype: string
 }
 
+const sortOptions = [
+  { value: "departure_date_asc", label: "Departure: Date Ascending" },
+  { value: "departure_date_desc", label: "Departure: Date Descending" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+];
 
 export default function Hotels() {
   const params = useParams();
   const hotel_id = params.hotel_id as string;
+  const router = useRouter();
   const isBrowser = () => typeof window !== 'undefined';
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +66,24 @@ export default function Hotels() {
     }
 
   }, [searchParams, offset])
+
+  const handleSorting = (type: string) => {
+    if (type === "departure_date_asc") {
+      const params = new URLSearchParams(window.location.search);
+      params.set('order_by', 'departure_date_asc');
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    } else if (type === "departure_date_desc") {
+      const params = new URLSearchParams(window.location.search);
+      params.set('order_by', 'departure_date_desc');
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    } else if (type === "price_asc") {
+      const sorted = [...hotelOffers].sort((a, b) => a.price - b.price);
+      setHotelOffers(sorted);
+    } else if (type === "price_desc") {
+      const sorted = [...hotelOffers].sort((a, b) => b.price - a.price);
+      setHotelOffers(sorted);
+    }
+  }
 
 
   function scrollToTop() {
@@ -80,6 +114,20 @@ export default function Hotels() {
         </div>
       ) : (
         <>
+          <div className="flex justify-end pr-16 pb-16">
+            <Select onValueChange={(v) => handleSorting(v)}>
+              <SelectTrigger className="w-[240px]">
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex justify-center pb-8">
             <div className="flex w-3xl m-1 rounded-xl">
               <div className="hotel-name font-medium text-5xl [font-variant:small-caps]">

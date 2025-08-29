@@ -8,7 +8,6 @@ from schemas import AirportResponse, CheapestHotelOfferResponse, HotelOffersResp
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-import datetime
 
 load_dotenv()
 config = dotenv_values(".env")
@@ -68,6 +67,7 @@ async def get_hotel_offers(
     query_params: Annotated[HotelsSearchQueryAdvanced, Depends()],
     session: Session = Depends(db_client.get_session),
     offset: Annotated[int, Query(ge=0)] = 0,
+    order_by: Annotated[str, Query()] = "",
     limit: Annotated[int, Query(ge=1, le=100)] = 20
     ) -> list[HotelOffersResponse]:
         """
@@ -88,9 +88,8 @@ async def get_hotel_offers(
             A list of offers for the specified hotel matching the query parameters.
         """
 
-        t1 = datetime.datetime.now()
         query_builder = HotelOffersQueryBuilder(
-             hotel_id=hotel_id, limit=limit, offset=offset, query_params=query_params)
+             hotel_id=hotel_id, limit=limit, offset=offset, order_by=order_by, query_params=query_params)
         query = query_builder.build_query()
 
         results = session.execute(query).all()
@@ -101,9 +100,6 @@ async def get_hotel_offers(
             res = res._asdict()
             response_obj = HotelOffersResponse.model_validate(res)
             response_objects.append(response_obj)
-
-        t2 = datetime.datetime.now()
-        print(t2-t1)
 
         return response_objects
 
@@ -130,7 +126,6 @@ async def search_hotels(
         A list of hotel offers matching the query parameters.
     """
 
-    t1 = datetime.datetime.now()
     query_builder = CheapestOffersQueryBuilder(query_params=query_params)
     query = query_builder.build_query()
 
@@ -143,8 +138,5 @@ async def search_hotels(
         res = res._asdict()
         response_obj = CheapestHotelOfferResponse.model_validate(res)
         response_objects.append(response_obj)
-
-    t2 = datetime.datetime.now()
-    print(t2-t1)
 
     return response_objects

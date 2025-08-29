@@ -236,10 +236,13 @@ class BaseQueryBuilder:
 
 
 class HotelOffersQueryBuilder(BaseQueryBuilder):
-    def __init__(self, hotel_id: int, limit:int, offset: int, query_params: HotelsSearchQueryAdvanced) -> None:
+    def __init__(
+            self, hotel_id: int, limit:int, offset: int, order_by: str,
+            query_params: HotelsSearchQueryAdvanced) -> None:
         self.hotel_id = hotel_id
         self.limit = limit
         self.offset = offset
+        self.order_by = order_by
         self.query_params = query_params
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
@@ -318,7 +321,19 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             onclause=Hotel.hotel_id == self.hotel_id
         ).where(
             Hotel.hotel_id == self.hotel_id
-        ).limit(self.limit).offset(self.offset)
+        )
+
+        if self.order_by:
+            order_by_mapping = {
+                "departure_date_asc": filtered_offers_cte.c.outbound_departure_datetime.asc(),
+                "departure_date_desc": filtered_offers_cte.c.outbound_departure_datetime.desc(),
+            }
+
+            order_expression = order_by_mapping.get(self.order_by)
+            if order_expression is not None:
+                query = query.order_by(order_expression)
+
+        query = query.limit(self.limit).offset(self.offset)
 
         return query
 
