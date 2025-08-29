@@ -42,10 +42,12 @@ export default function CheapestHotelOffer(
         <div className="flex gap-6 px-6 justify-between">
           <div className="flex">
             <Icon description={offer.mealtype} filepath={`./icons/${mealtypeIconPath}`} />
+            <p className="px-4">{offer.mealtype}</p>
             <div className="flex px-2">
-              <Separator orientation="vertical" />
+              <Separator className="mr-4" orientation="vertical" />
             </div>
             <Icon description={offer.roomtype} filepath={`./icons/${roomtypeIconPath}`} />
+            <p className="px-4">{offer.roomtype}</p>
           </div>
           <div>
             <div className="text-gray-600">{offer.duration} days · {offer.count_children + offer.count_adults} Pers.</div>
