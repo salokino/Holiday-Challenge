@@ -56,7 +56,7 @@ class BaseQueryBuilder:
 
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
-            "airport": (Offer.inbound_arrival_airport, Offer.outbound_departure_airport),
+            "airport": Offer.outbound_departure_airport,
             "children": Offer.count_children,
             "duration": Offer.duration,
             "earliest_departure": Offer.outbound_departure_datetime,
@@ -73,7 +73,7 @@ class BaseQueryBuilder:
         }
 
     def _airport_filter(self, attribute: InstrumentedAttribute, query: Select, value) -> Select:
-        return query.where((attribute[0].in_(value)) & (attribute[1].in_(value)))
+        return query.where(attribute.in_(value))
 
     def _date_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
         """
@@ -243,7 +243,7 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
         self.query_params = query_params
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
-            "airport": (Offer.inbound_arrival_airport, Offer.outbound_departure_airport),
+            "airport": Offer.outbound_departure_airport,
             "children": Offer.count_children,
             "duration": Offer.duration,
             "earliest_departure": Offer.outbound_departure_datetime,
@@ -328,7 +328,7 @@ class CheapestOffersQueryBuilder(BaseQueryBuilder):
         self.query_params = query_params
         self._schema_attribute_mapping = {
             "adults": Offer.count_adults,
-            "airport": (Offer.inbound_arrival_airport, Offer.outbound_departure_airport),
+            "airport": Offer.outbound_departure_airport,
             "children": Offer.count_children,
             "duration": Offer.duration,
             "earliest_departure": Offer.outbound_departure_datetime,
