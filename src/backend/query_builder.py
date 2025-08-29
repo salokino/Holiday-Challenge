@@ -93,6 +93,22 @@ class BaseQueryBuilder:
         selected_parameters = dict(filter(lambda param: param[1] is not None, self.query_params))
         return selected_parameters
 
+    def _filter_all_offers(self, query: Select) -> Selectable:
+        """ Applies all filters to the Offer table based on the query parameters the user provided.
+
+        Returns
+        -------
+        Selectable
+            A CTE containing all offers that match the given query parameters.
+        """
+
+        non_null_params = self._extract_non_null_query_params()
+        for param in non_null_params:
+            attribute = self._schema_attribute_mapping[param]
+            query = self._parameter_filter_mapping[param](attribute=attribute, query=query, value=non_null_params[param])
+
+        return query.cte("filtered_offers")
+
     def _generic_comparison_filter(self, attribute: InstrumentedAttribute, query: Select, value, op) -> Select:
         """
         Generic filter that applies a comparison filter to the given attribute.
@@ -241,22 +257,36 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             The query to get offers for the specified hotel matching the query parameters.
         """
 
+        print("hi", self.hotel_id)
+
+        filtered_offers_cte = self._filter_all_offers(
+            select(
+                Offer.count_adults,
+                Offer.count_children,
+                Offer.duration,
+                Offer.mealtype,
+                Offer.oceanview,
+                Offer.offer_id,
+                Offer.price,
+                Offer.roomtype)
+        )
+
         query = select(
             Hotel.hotel_name,
             Hotel.hotel_stars,
-            Offer.count_adults,
-            Offer.count_children,
-            Offer.duration,
-            Offer.mealtype,
-            Offer.oceanview,
-            Offer.offer_id,
-            Offer.price,
-            Offer.roomtype
+            filtered_offers_cte.c.count_adults, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.count_children, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.duration, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.mealtype, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.oceanview, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.offer_id, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.price, # pyright: ignore[reportAttributeAccessIssue]
+            filtered_offers_cte.c.roomtype # pyright: ignore[reportAttributeAccessIssue]
         ).join(
             target=Hotel,
             onclause=Hotel.hotel_id == self.hotel_id
         ).where(
-            Offer.hotel_id == self.hotel_id
+            Hotel.hotel_id == self.hotel_id # pyright: ignore[reportAttributeAccessIssue]
         ).limit(self.limit).offset(self.offset)
 
         return query
@@ -299,23 +329,6 @@ class CheapestOffersQueryBuilder(BaseQueryBuilder):
             "price_min": partial(self._generic_comparison_filter, op=operator.ge),
             "roomtype": self._generic_equals_filter
         }
-
-    def _filter_all_offers(self) -> Selectable:
-        """ Applies all filters to the Offer table based on the query parameters the user provided.
-
-        Returns
-        -------
-        Selectable
-            A CTE containing all offers that match the given query parameters.
-        """
-
-        non_null_params = self._extract_non_null_query_params()
-        query = select(Offer.hotel_id, Offer.offer_id, Offer.price)
-        for param in non_null_params:
-            attribute = self._schema_attribute_mapping[param]
-            query = self._parameter_filter_mapping[param](attribute=attribute, query=query, value=non_null_params[param])
-
-        return query.cte("filtered_offers")
 
     def _get_cheapest_offers(self, cte: Selectable) -> Selectable:
         """ Returns a CTE that contains the cheapest offer per hotel from the given CTE.
@@ -385,7 +398,7 @@ class CheapestOffersQueryBuilder(BaseQueryBuilder):
             The final query.
         """
 
-        filtered_offers_cte = self._filter_all_offers()
+        filtered_offers_cte = self._filter_all_offers(query=select(Offer.hotel_id, Offer.offer_id, Offer.price))
         cheapest_offers_cte = self._get_cheapest_offers(cte=filtered_offers_cte)
         relevant_offer_details_cte = self._get_relevant_offer_details(cte=cheapest_offers_cte)
 
