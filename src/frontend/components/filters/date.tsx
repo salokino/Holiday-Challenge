@@ -1,8 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDownIcon } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Label } from "@/components/ui/label"
@@ -12,23 +10,26 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { transformDate } from "../functions"
+import { useState } from "react"
 
 export default function DateFilter(
   {
     classname,
+    date,
     filtersKey,
     filtername,
     onChange
   }: {
     classname: string,
+    date: string | null,
     filtersKey: string,
     filtername: string,
     onChange: (filterName: string, value: string | undefined) => void
 
   }
 ) {
-  const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(undefined)
+  const [open, setOpen] = useState(false)
+  const currentDate = date ? new Date(date) : undefined
 
   return (
     <div>
@@ -44,8 +45,8 @@ export default function DateFilter(
               className="w-fit justify-between font-normal cursor-pointer"
             >
               {
-                date ?
-                  <Label className="px-1 cursor-pointer">{date.toLocaleDateString()}</Label> :
+                currentDate ?
+                  <Label className="px-1 cursor-pointer">{currentDate.toLocaleDateString()}</Label> :
                   <Label className="px-1 cursor-pointer">Select Date</Label>
               }
             </Button>
@@ -53,10 +54,9 @@ export default function DateFilter(
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
             <Calendar
               mode="single"
-              selected={date}
+              selected={currentDate}
               captionLayout="dropdown"
               onSelect={(date) => {
-                setDate(date)
                 setOpen(false)
                 onChange(filtersKey, date ? transformDate(date) : undefined)
               }}

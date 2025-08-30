@@ -1,5 +1,5 @@
-import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 
 export default function DurationFilter(
@@ -19,7 +19,7 @@ export default function DurationFilter(
       </div>
       <div className="flex justify-center p-2">
         <div className="flex">
-          <Input className="w-12 justify-items-center" defaultValue={duration} onChange={(v) => onChange("duration", Number(v.target.value))} />
+          <Input className="w-12 justify-items-center" value={duration} onChange={(v) => onChange("duration", Number(v.target.value))} />
           <Label className="pl-2">days</Label>
         </div>
       </div>

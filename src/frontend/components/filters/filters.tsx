@@ -18,6 +18,15 @@ type FiltersType = {
   latestReturn: string | null
 };
 
+const defaultFilters: FiltersType = {
+  adults: 2,
+  airport: [],
+  children: 0,
+  duration: 7,
+  earliestDeparture: null,
+  latestReturn: null
+}
+
 
 export default function Filters(
   {
@@ -26,14 +35,7 @@ export default function Filters(
     airportOptions: { iata_code: string, name: string }[]
   }) {
   const router = useRouter()
-  const [filters, setFilters] = useState<FiltersType>({
-    adults: 2,
-    airport: [],
-    children: 0,
-    duration: 7,
-    earliestDeparture: null,
-    latestReturn: null
-  })
+  const [filters, setFilters] = useState<FiltersType>(defaultFilters)
 
 
   const handleFilterChange = (filterName: string, value: string | number | string[] | undefined) => {
@@ -41,6 +43,10 @@ export default function Filters(
       ...prevFilters,
       [filterName]: value
     }))
+  }
+
+  const resetFilters = () => {
+    setFilters(defaultFilters)
   }
 
 
@@ -73,14 +79,14 @@ export default function Filters(
         <Separator className="my-2" />
         <DurationFilter classname="pl-1 w-full" duration={filters.duration} onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <DateFilter classname="pl-1" filtername="Earliest Departure" filtersKey="earliestDeparture" onChange={handleFilterChange} />
+        <DateFilter classname="pl-1" date={filters.earliestDeparture} filtername="Earliest Departure" filtersKey="earliestDeparture" onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <DateFilter classname="pl-1" filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} />
+        <DateFilter classname="pl-1" date={filters.latestReturn} filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <AirportFilter airportOptions={airportOptions} classname="pl-1" onChange={handleFilterChange} />
+        <AirportFilter airport={filters.airport} airportOptions={airportOptions} classname="pl-1" onChange={handleFilterChange} />
         <Separator className="my-2" />
-
-        <Button className="bg-sky-800 hover:bg-sky-900 text-white hover:text-white" type="submit" variant="outline" onClick={handleSearch}>Search</Button>
+        <Button className="bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 hover:text-gray-900 mb-2" variant="outline" onClick={resetFilters}>Reset</Button>
+        <Button className="bg-sky-800 cursor-pointer hover:bg-sky-900 text-white hover:text-white" type="submit" variant="outline" onClick={handleSearch}>Search</Button>
       </div>
     </div>
   )
