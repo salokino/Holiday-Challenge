@@ -94,10 +94,26 @@ const getTimeDifference = (
   }`;
 };
 
+const transformDate = (date: Date) => {
+  // transform date to yyyy-mm-dd
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+
+  // add leading zeros
+  const dayAsString = day < 10 ? `0${day}` : day;
+  const monthAsString = month + 1 < 10 ? `0${month + 1}` : month + 1;
+
+  return `${year}-${monthAsString}-${dayAsString}`;
+
+  return;
+};
+
 export {
   getFormattedDate,
   getFormattedTime,
   getMealtypeIconFilename,
   getRoomtypeIconFilename,
   getTimeDifference,
+  transformDate,
 };

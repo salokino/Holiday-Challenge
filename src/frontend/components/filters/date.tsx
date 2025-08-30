@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { transformDate } from "../functions"
 
 export default function DateFilter(
   {
@@ -57,7 +58,7 @@ export default function DateFilter(
               onSelect={(date) => {
                 setDate(date)
                 setOpen(false)
-                onChange(filtersKey, date?.toLocaleDateString())
+                onChange(filtersKey, date ? transformDate(date) : undefined)
               }}
             />
           </PopoverContent>
