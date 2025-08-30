@@ -294,6 +294,7 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
                 Offer.count_adults,
                 Offer.count_children,
                 Offer.duration,
+                Offer.hotel_id,
                 Offer.inbound_departure_datetime,
                 Offer.mealtype,
                 Offer.oceanview,
@@ -318,7 +319,7 @@ class HotelOffersQueryBuilder(BaseQueryBuilder):
             filtered_offers_cte.c.roomtype
         ).join(
             target=Hotel,
-            onclause=Hotel.hotel_id == self.hotel_id
+            onclause=Hotel.hotel_id == filtered_offers_cte.c.hotel_id
         ).where(
             Hotel.hotel_id == self.hotel_id
         )
