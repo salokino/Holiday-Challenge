@@ -51,8 +51,8 @@ class HotelsSearchQueryBasic(BaseModel):
     airport: Annotated[List[airport_type] | None, Field(Query(default=None))]
     children: Annotated[int | None, Field(ge=0)] = None
     duration: Annotated[int | None, Field(ge=0)] = None
-    earliest_departure: Annotated[date | None, Field()] = None
-    latest_return: Annotated[date | None, Field()] = None
+    earliestDeparture: Annotated[date | None, Field()] = None
+    latestReturn: Annotated[date | None, Field()] = None
 
 
 class HotelsSearchQueryAdvanced(HotelsSearchQueryBasic):
