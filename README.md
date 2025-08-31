@@ -131,27 +131,29 @@ I've created the frontend from scratch. Therefore I've leveraged my nextjs knowl
 
 To get started, the datasets must be in a folder called 'data', two directories above the location of the scrips:
 
+```
 | root
 
 | ---- data
 
-​	| ---- hotels.csv
+	| ---- hotels.csv
 
-​	| ---- offers.csv
+	| ---- offers.csv
 
 | ---- src
 
-​	| ---- backend
+	| ---- backend
 
-​		| ---- import_data.py
+		| ---- import_data.py
 
-​		| ---- utils.py
+		| ---- utils.py
 
-​		| ---- flight_durations.py
+		| ---- flight_durations.py
 
-​		etc
+		etc
 
-​	| ---- frontend
+	| ---- frontend
+```
 
 
 
