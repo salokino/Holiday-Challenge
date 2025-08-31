@@ -1,6 +1,6 @@
 "use client"
 
-import { Offer } from "@/app/offers/[hotel_id]/page";
+import { Offer } from "@/app/(vacation-finder)/offers/[hotel_id]/page";
 import { getMealtypeIconFilename, getRoomtypeIconFilename, getTimeDifference } from "./functions";
 import Icon from "./Icon";
 import { useEffect, useState } from "react";

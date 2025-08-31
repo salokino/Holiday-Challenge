@@ -33,16 +33,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="sticky top-0 z-50 bg-white shadow">
-          <Navbar />
-        </div>
-        <div className="flex items-start pl-4">
-          <div className="flex-none max-w-sm sticky top-15">
-            <Filters airportOptions={airports} />
-          </div>
-          <div className="grow ">
-            <main className="pt-6">{children}</main>
-          </div>
+        <div className="grow ">
+          <main>{children}</main>
         </div>
       </body>
     </html>
