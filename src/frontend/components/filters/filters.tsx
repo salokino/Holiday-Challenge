@@ -72,12 +72,19 @@ export default function Filters(
     router.push(path);
   }
 
-  const getStartDate = () => {
-    if (filters.earliestDeparture) {
+  const getDateLimitation = (type: string) => {
+    if (type === "start" && filters.earliestDeparture) {
       const earliestDepartureDate = new Date(filters.earliestDeparture);
       const latestReturnStartDate = earliestDepartureDate.setDate(earliestDepartureDate.getDate() + filters.duration)
 
       return latestReturnStartDate
+    }
+
+    if (type === "end" && filters.latestReturn) {
+      const latestReturnDate = new Date(filters.latestReturn);
+      const earliestDepartureEndDate = latestReturnDate.setDate(latestReturnDate.getDate() - filters.duration)
+
+      return earliestDepartureEndDate
     }
 
     return undefined
@@ -91,9 +98,9 @@ export default function Filters(
         <Separator className="my-2" />
         <DurationFilter classname="pl-1 w-full" duration={filters.duration} onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <DateFilter classname="pl-1" date={filters.earliestDeparture} filtername="Earliest Departure" filtersKey="earliestDeparture" onChange={handleFilterChange} />
+        <DateFilter classname="pl-1" date={filters.earliestDeparture} endDate={getDateLimitation("end")} filtername="Earliest Departure" filtersKey="earliestDeparture" onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <DateFilter classname="pl-1" date={filters.latestReturn} filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} startDate={getStartDate()} />
+        <DateFilter classname="pl-1" date={filters.latestReturn} filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} startDate={getDateLimitation("start")} />
         <Separator className="my-2" />
         <AirportFilter airport={filters.airport} airportOptions={airportOptions} classname="pl-1" onChange={handleFilterChange} />
         <Separator className="my-2" />

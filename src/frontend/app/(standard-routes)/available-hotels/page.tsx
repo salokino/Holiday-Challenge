@@ -35,7 +35,7 @@ export default function AvailableHotelsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [offset, setOffset] = useState(0);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(21);
 
   useEffect(() => {
     const fetchResults = async () => {

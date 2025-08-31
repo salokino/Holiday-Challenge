@@ -16,17 +16,7 @@ export default function DurationFilter(
 
   const handleDurationChange = (value: string) => {
     if (!isNaN(Number(value))) {
-      if (Number(value) == 0) {
-        return toast.error(
-          "The trip must be at least one day long.",
-          {
-            duration: 3000,
-            position: "top-center"
-          }
-        )
-      } else {
-        onChange("duration", Number(value))
-      }
+      onChange("duration", Number(value))
     } else {
       return toast.error(
         "You can only enter numbers.",

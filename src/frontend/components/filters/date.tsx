@@ -16,6 +16,7 @@ export default function DateFilter(
   {
     classname,
     date,
+    endDate,
     filtersKey,
     filtername,
     onChange,
@@ -23,6 +24,7 @@ export default function DateFilter(
   }: {
     classname: string,
     date: string | null,
+    endDate?: Date | undefined,
     filtersKey: string,
     filtername: string,
     onChange: (filterName: string, value: string | undefined) => void,
@@ -57,7 +59,7 @@ export default function DateFilter(
               mode="single"
               selected={currentDate}
               captionLayout="dropdown"
-              disabled={startDate ? { before: startDate } : undefined}
+              disabled={(startDate ? { before: startDate } : undefined) || (endDate ? { after: endDate } : undefined)}
               onSelect={(date) => {
                 setOpen(false)
                 onChange(filtersKey, date ? transformDate(date) : undefined)

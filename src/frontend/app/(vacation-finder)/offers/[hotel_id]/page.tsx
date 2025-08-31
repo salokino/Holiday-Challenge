@@ -103,6 +103,8 @@ export default function Hotels() {
     scrollToTop()
   }
 
+  const currentSortingValue = searchParams.get("order_by") ?? undefined;
+
   return (
     <div className="pt-8">
       {isLoading ? (
@@ -114,7 +116,7 @@ export default function Hotels() {
       ) : (
         <>
           <div className="flex justify-end pr-16 pb-10">
-            <Select onValueChange={(v) => handleSorting(v)}>
+            <Select onValueChange={(v) => handleSorting(v)} value={currentSortingValue}>
               <SelectTrigger className="w-[240px]">
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
