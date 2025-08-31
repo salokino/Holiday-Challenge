@@ -18,17 +18,15 @@ export default function PersonFilter(
       <div className="flex justify-center">
         <strong>Travelers</strong>
       </div>
-      <div className="grid grid-cols-4 p-2">
-        <p className="grid pr-2">Adults:</p>
-        <Slider className="grid col-span-2" value={[adults]} max={10} min={0} step={1} onValueChange={(v) => onChange("adults", v[0])} />
-        <span className="grid pl-2 w-4 text-right font-medium">{adults}</span>
-
+      <div className="flex justify-center items-center gap-2">
+        <p className="w-20 pl-4">Adults:</p>
+        <Slider className="flex-1" value={[adults]} max={10} min={0} step={1} onValueChange={(v) => onChange("adults", v[0])} />
+        <span className="w-4 pr-6 text-right font-medium">{adults}</span>
       </div>
-      <div className="grid grid-cols-4 p-2">
-        <p className="grid pr-2">Children:</p>
-        <Slider className="grid col-span-2" value={[childs]} max={10} min={0} step={1} onValueChange={(v) => onChange("children", v[0])} />
-        <span className="grid pl-2 w-4 text-right font-medium">{childs}</span>
-
+      <div className="flex justify-center items-center gap-2">
+        <p className="w-20 pl-4">Children:</p>
+        <Slider className="flex-1" value={[childs]} max={10} min={0} step={1} onValueChange={(v) => onChange("children", v[0])} />
+        <span className="w-4 pr-6 text-right font-medium">{childs}</span>
       </div>
     </div>
   )

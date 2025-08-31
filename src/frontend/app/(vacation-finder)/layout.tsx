@@ -14,7 +14,7 @@ export default async function VacationFinderLayout({
         <Navbar />
       </div>
       <div className="flex items-start">
-        <div className="flex-none max-w-sm sticky top-15">
+        <div className="flex-none max-w-sm w-xs sticky top-15">
           <Filters airportOptions={airports} />
         </div>
         <div className="grow ">
