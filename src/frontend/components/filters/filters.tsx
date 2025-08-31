@@ -77,14 +77,14 @@ export default function Filters(
       const earliestDepartureDate = new Date(filters.earliestDeparture);
       const latestReturnStartDate = earliestDepartureDate.setDate(earliestDepartureDate.getDate() + filters.duration)
 
-      return latestReturnStartDate
+      return new Date(latestReturnStartDate)
     }
 
     if (type === "end" && filters.latestReturn) {
       const latestReturnDate = new Date(filters.latestReturn);
       const earliestDepartureEndDate = latestReturnDate.setDate(latestReturnDate.getDate() - filters.duration)
 
-      return earliestDepartureEndDate
+      return new Date(earliestDepartureEndDate)
     }
 
     return undefined
