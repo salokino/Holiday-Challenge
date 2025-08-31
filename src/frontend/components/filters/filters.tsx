@@ -74,7 +74,7 @@ export default function Filters(
 
   return (
     <div>
-      <div className="grid pt-4 px-2">
+      <div className="grid pt-6 px-6">
         <PersonFilter adults={filters.adults} childs={filters.children} classname="pl-1" onChange={handleFilterChange} />
         <Separator className="my-2" />
         <DurationFilter classname="pl-1 w-full" duration={filters.duration} onChange={handleFilterChange} />

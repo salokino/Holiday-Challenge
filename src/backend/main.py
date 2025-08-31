@@ -3,8 +3,8 @@ from database import DatabaseClient
 from dotenv import dotenv_values, load_dotenv
 from fastapi import FastAPI, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
-from query_builder import AirportQueryBuilder, HotelOffersQueryBuilder, CheapestOffersQueryBuilder
-from schemas import AirportResponse, CheapestHotelOfferResponse, HotelOffersResponse, HotelsSearchQueryAdvanced
+from query_builder import *
+from schemas import *
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -43,6 +43,29 @@ def read_airports(session: Session = Depends(db_client.get_session)):
     for res in results:
         res = res._asdict()
         response_obj = AirportResponse.model_validate(res)
+        response_objects.append(response_obj)
+
+    return response_objects
+
+
+@app.get("/available-hotels")
+async def get_available_hotels(
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    stars: Annotated[int | None, Query(ge=1, le=5)] = None,
+    session: Session = Depends(db_client.get_session)
+) -> list[HotelsResponse]:
+
+    query_builder = HotelQueryBuilder(limit=limit, offset=offset, stars=stars)
+    query = query_builder.get_hotels()
+
+    results = session.execute(query).all()
+    response_objects = []
+
+    # convert results to response objects
+    for res in results:
+        res = res._asdict()
+        response_obj = HotelsResponse.model_validate(res)
         response_objects.append(response_obj)
 
     return response_objects

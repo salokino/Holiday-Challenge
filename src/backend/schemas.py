@@ -44,6 +44,14 @@ class HotelOffersResponse(BaseModel):
     roomtype: str
 
 
+class HotelsResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    hotel_id: int
+    hotel_name: str
+    hotel_stars: int
+
+
 class HotelsSearchQueryBasic(BaseModel):
     model_config = {"extra": "forbid"}
 

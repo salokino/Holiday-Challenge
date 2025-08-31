@@ -235,6 +235,32 @@ class BaseQueryBuilder:
             )
 
 
+class HotelQueryBuilder:
+    def __init__(self, limit: int, offset: int, stars: int | None) -> None:
+        self.limit = limit
+        self.offset = offset
+        self.stars = stars
+
+    def get_hotels(self) -> Select:
+        query = select(
+            Hotel.hotel_id,
+            Hotel.hotel_name,
+            Hotel.hotel_stars
+        )
+
+        # filter by stars
+        if self.stars:
+            query = query.where(Hotel.hotel_stars == self.stars)
+
+        # order by name
+        query = query.order_by(Hotel.hotel_name)
+
+        # pagination
+        query = query.limit(self.limit).offset(self.offset)
+
+        return query
+
+
 class HotelOffersQueryBuilder(BaseQueryBuilder):
     def __init__(
             self, hotel_id: int, limit:int, offset: int, order_by: str,
