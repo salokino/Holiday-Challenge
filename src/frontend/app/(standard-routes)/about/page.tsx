@@ -38,12 +38,6 @@ export default function AboutPage() {
             https://github.com/TechUp-Stipendium/holiday-coding-challenge/tree/main
           </a>
         </p>
-
-
-
-
-
-
       </div>
       <div className="grid">
         <p className={classNamesHeading}>
@@ -62,8 +56,12 @@ export default function AboutPage() {
           The project involves working with large amounts of data, creating a database and writing efficient queries.
         </p>
         <p>
+          That&apos;s what I love: working with large amounts of data.
+        </p>
+        <p>
           This is why I am going to pursue a Master&apos;s degree in Data Science in Leipzig, with the aim of becoming a data engineer or analyst.
         </p>
+        <br />
         <p>
           Thank you for reading these few lines.
         </p>
