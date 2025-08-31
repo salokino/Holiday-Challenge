@@ -61,8 +61,8 @@ export default function Hotels() {
         </div>
       </div>
     ) : (
-      <div>
-        <div className="flex justify-end pr-16 pb-16">
+      <div className="pt-8">
+        <div className="flex justify-end pr-16 pb-10">
           <Select onValueChange={(v) => handleSorting(v)}>
             <SelectTrigger className="w-[240px]">
               <SelectValue placeholder="Sort By" />
@@ -75,6 +75,13 @@ export default function Hotels() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="flex justify-center pb-8">
+          <div className="flex w-3xl m-1 rounded-xl">
+            <div className="hotel-name font-medium text-5xl [font-variant:small-caps]">
+              Offers
+            </div>
+          </div>
         </div>
         {cheapestOffers.map((offer: CheapestOffer) => (
           <div className="flex justify-center" key={offer.hotel_id}>

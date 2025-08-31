@@ -104,8 +104,7 @@ export default function Hotels() {
   }
 
   return (
-    <div>
-      <h1>{offset}</h1>
+    <div className="pt-8">
       {isLoading ? (
         <div className="flex h-screen">
           <div className="m-auto">
@@ -114,7 +113,7 @@ export default function Hotels() {
         </div>
       ) : (
         <>
-          <div className="flex justify-end pr-16 pb-16">
+          <div className="flex justify-end pr-16 pb-10">
             <Select onValueChange={(v) => handleSorting(v)}>
               <SelectTrigger className="w-[240px]">
                 <SelectValue placeholder="Sort By" />
