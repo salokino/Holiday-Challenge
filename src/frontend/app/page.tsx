@@ -15,7 +15,7 @@ export default function Home() {
           <div className="m-auto">
             <div className="text-center pb-8">
               <p className="text-4xl font-bold text-sky-800 pb-4">
-                Welcome to the Holiday Challenge! - Check24 TechUp
+                Welcome to the Holiday Challenge! – Check24 TechUp
               </p>
               <p className="text-lg text-gray-700">
                 Discover our vacation finder and find the best deals on hotels and flights for <strong> your </strong> trip to Mallorca!
