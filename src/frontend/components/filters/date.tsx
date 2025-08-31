@@ -18,14 +18,15 @@ export default function DateFilter(
     date,
     filtersKey,
     filtername,
-    onChange
+    onChange,
+    startDate
   }: {
     classname: string,
     date: string | null,
     filtersKey: string,
     filtername: string,
-    onChange: (filterName: string, value: string | undefined) => void
-
+    onChange: (filterName: string, value: string | undefined) => void,
+    startDate?: Date | undefined
   }
 ) {
   const [open, setOpen] = useState(false)
@@ -56,6 +57,7 @@ export default function DateFilter(
               mode="single"
               selected={currentDate}
               captionLayout="dropdown"
+              disabled={startDate ? { before: startDate } : undefined}
               onSelect={(date) => {
                 setOpen(false)
                 onChange(filtersKey, date ? transformDate(date) : undefined)

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
+import { toast } from "sonner"
 
 export default function DurationFilter(
   {
@@ -11,7 +11,33 @@ export default function DurationFilter(
     classname: string,
     duration: number,
     onChange: (filterName: "duration", value: number) => void
-  }) {
+  }
+) {
+
+  const handleDurationChange = (value: string) => {
+    if (!isNaN(Number(value))) {
+      if (Number(value) == 0) {
+        return toast.error(
+          "The trip must be at least one day long.",
+          {
+            duration: 3000,
+            position: "top-center"
+          }
+        )
+      } else {
+        onChange("duration", Number(value))
+      }
+    } else {
+      return toast.error(
+        "You can only enter numbers.",
+        {
+          duration: 3000,
+          position: "top-center"
+        }
+      )
+    }
+  }
+
   return (
     <div>
       <div className="flex justify-center">
@@ -19,7 +45,7 @@ export default function DurationFilter(
       </div>
       <div className="flex justify-center p-2">
         <div className="flex">
-          <Input className="w-12 justify-items-center" value={duration} onChange={(v) => onChange("duration", Number(v.target.value))} />
+          <Input className="w-12 justify-items-center" type="text" value={duration} onChange={(v) => handleDurationChange(v.target.value)} />
           <Label className="pl-2">days</Label>
         </div>
       </div>

@@ -105,8 +105,6 @@ const transformDate = (date: Date) => {
   const monthAsString = month + 1 < 10 ? `0${month + 1}` : month + 1;
 
   return `${year}-${monthAsString}-${dayAsString}`;
-
-  return;
 };
 
 export {

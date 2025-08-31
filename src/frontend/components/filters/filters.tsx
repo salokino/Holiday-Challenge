@@ -72,6 +72,18 @@ export default function Filters(
     router.push(path);
   }
 
+  const getStartDate = () => {
+    if (filters.earliestDeparture) {
+      const earliestDepartureDate = new Date(filters.earliestDeparture);
+      const latestReturnStartDate = earliestDepartureDate.setDate(earliestDepartureDate.getDate() + filters.duration)
+
+      return latestReturnStartDate
+    }
+
+    return undefined
+  }
+
+
   return (
     <div>
       <div className="grid pt-6 px-6">
@@ -81,7 +93,7 @@ export default function Filters(
         <Separator className="my-2" />
         <DateFilter classname="pl-1" date={filters.earliestDeparture} filtername="Earliest Departure" filtersKey="earliestDeparture" onChange={handleFilterChange} />
         <Separator className="my-2" />
-        <DateFilter classname="pl-1" date={filters.latestReturn} filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} />
+        <DateFilter classname="pl-1" date={filters.latestReturn} filtername="Latest Return" filtersKey="latestReturn" onChange={handleFilterChange} startDate={getStartDate()} />
         <Separator className="my-2" />
         <AirportFilter airport={filters.airport} airportOptions={airportOptions} classname="pl-1" onChange={handleFilterChange} />
         <Separator className="my-2" />
